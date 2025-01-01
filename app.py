@@ -1,10 +1,14 @@
 import streamlit as st
+from datetime import datetime, UTC  # Updated datetime import
+
+# Must be the first Streamlit command
+st.set_page_config(page_title="HR AI Assistant", layout="wide")
+
 import spacy
 import schedule
 import time
 import subprocess
 import sys
-from datetime import datetime
 
 # Initialize session state
 if 'nlp' not in st.session_state:
@@ -31,10 +35,11 @@ if st.session_state.nlp is None:
     with st.spinner('Loading NLP model...'):
         st.session_state.nlp = initialize_spacy()
 
-# Add current date/time and user information
-st.sidebar.markdown(f"**Current Date and Time (UTC):** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
+# Add current date/time and user information in sidebar
+st.sidebar.markdown(f"**Current Date and Time (UTC):** {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}")
 st.sidebar.markdown(f"**User:** {st.session_state.get('user_login', 'DFalauddin')}")
 
+# Resume Screening
 class ResumeScreening:
     def __init__(self):
         self.nlp = st.session_state.nlp
@@ -58,55 +63,13 @@ class ResumeScreening:
     def match_skills(self, resume_skills, job_skills):
         return set(resume_skills).intersection(set(job_skills))
 
-class PayrollProcessor:
-    def __init__(self):
-        self.employees = []
+# [Keep your existing PayrollProcessor class here]
 
-    def calculate_net_salary(self, salary, deductions, taxes, benefits):
-        return salary - deductions - taxes + benefits
+# [Keep your existing InterviewScheduler class here]
 
-    def process_payroll(self, employee):
-        net_salary = self.calculate_net_salary(
-            employee['salary'],
-            employee['deductions'],
-            employee['taxes'],
-            employee['benefits']
-        )
-        return {
-            'name': employee['name'],
-            'net_salary': net_salary,
-            'processed_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-
-class InterviewScheduler:
-    def __init__(self):
-        self.interviews = []
-
-    def add_interview(self, candidate, interviewer, date_time):
-        interview = {
-            'candidate': candidate,
-            'interviewer': interviewer,
-            'datetime': date_time,
-            'status': 'Scheduled'
-        }
-        self.interviews.append(interview)
-        return interview
-
-class PerformanceTracker:
-    def __init__(self):
-        self.records = []
-
-    def add_record(self, employee_name, metrics):
-        record = {
-            'employee': employee_name,
-            'date': datetime.now().strftime("%Y-%m-%d"),
-            'metrics': metrics
-        }
-        self.records.append(record)
-        return record
+# [Keep your existing PerformanceTracker class here]
 
 def main():
-    st.set_page_config(page_title="HR AI Assistant", layout="wide")
     st.title("HR AI Assistant")
 
     # Sidebar for navigation
@@ -153,74 +116,7 @@ def main():
             else:
                 st.error("Please ensure spaCy model is properly installed")
 
-    elif page == "Payroll Processing":
-        st.header("Payroll Processing")
-        
-        with st.form("payroll_form"):
-            employee_name = st.text_input("Employee Name")
-            salary = st.number_input("Base Salary", min_value=0.0)
-            deductions = st.number_input("Deductions", min_value=0.0)
-            taxes = st.number_input("Taxes", min_value=0.0)
-            benefits = st.number_input("Benefits", min_value=0.0)
-            
-            submitted = st.form_submit_button("Calculate Payroll")
-            
-            if submitted:
-                processor = PayrollProcessor()
-                employee = {
-                    'name': employee_name,
-                    'salary': salary,
-                    'deductions': deductions,
-                    'taxes': taxes,
-                    'benefits': benefits
-                }
-                result = processor.process_payroll(employee)
-                
-                st.success("Payroll Processed Successfully!")
-                st.json(result)
-
-    elif page == "Interview Scheduling":
-        st.header("Interview Scheduling")
-        
-        scheduler = InterviewScheduler()
-        
-        with st.form("schedule_form"):
-            candidate = st.text_input("Candidate Name")
-            interviewer = st.text_input("Interviewer Name")
-            date = st.date_input("Interview Date")
-            time = st.time_input("Interview Time")
-            
-            submitted = st.form_submit_button("Schedule Interview")
-            
-            if submitted:
-                datetime_str = f"{date} {time}"
-                interview = scheduler.add_interview(candidate, interviewer, datetime_str)
-                st.success("Interview Scheduled!")
-                st.json(interview)
-
-    elif page == "Performance Tracking":
-        st.header("Performance Tracking")
-        
-        tracker = PerformanceTracker()
-        
-        with st.form("performance_form"):
-            employee_name = st.text_input("Employee Name")
-            productivity = st.slider("Productivity Score", 0, 100, 50)
-            quality = st.slider("Quality Score", 0, 100, 50)
-            attendance = st.slider("Attendance Score", 0, 100, 50)
-            
-            submitted = st.form_submit_button("Submit Performance Record")
-            
-            if submitted:
-                metrics = {
-                    'productivity': productivity,
-                    'quality': quality,
-                    'attendance': attendance,
-                    'overall_score': (productivity + quality + attendance) / 3
-                }
-                record = tracker.add_record(employee_name, metrics)
-                st.success("Performance Record Added!")
-                st.json(record)
+    # [Keep your existing elif blocks for other pages]
 
 if __name__ == "__main__":
     main()
