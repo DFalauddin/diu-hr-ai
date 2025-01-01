@@ -14,14 +14,26 @@ if 'nlp' not in st.session_state:
 @st.cache_resource
 def initialize_spacy():
     try:
+        # Try to load the model
         return spacy.load("en_core_web_sm")
     except OSError:
-        st.error("SpaCy model not found. Please run: python -m spacy download en_core_web_sm")
-        return None
+        try:
+            # If model isn't found, try downloading it
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+            return spacy.load("en_core_web_sm")
+        except Exception as e:
+            st.error(f"Failed to load spaCy model: {str(e)}")
+            st.info("Using fallback mode without NLP features")
+            return None
 
 # Initialize spaCy at startup
 if st.session_state.nlp is None:
-    st.session_state.nlp = initialize_spacy()
+    with st.spinner('Loading NLP model...'):
+        st.session_state.nlp = initialize_spacy()
+
+# Add current date/time and user information
+st.sidebar.markdown(f"**Current Date and Time (UTC):** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
+st.sidebar.markdown(f"**User:** {st.session_state.get('user_login', 'DFalauddin')}")
 
 class ResumeScreening:
     def __init__(self):
