@@ -63,7 +63,36 @@ class ResumeScreening:
     def match_skills(self, resume_skills, job_skills):
         return set(resume_skills).intersection(set(job_skills))
 
-# [Keep your existing PayrollProcessor class here]
+# Payroll Processing
+class PayrollProcessor:
+    def __init__(self):
+        if 'payroll_records' not in st.session_state:
+            st.session_state.payroll_records = []
+
+    def calculate_net_salary(self, salary, deductions, taxes, benefits):
+        return salary - deductions - taxes + benefits
+
+    def add_employee_record(self, employee_data):
+        net_salary = self.calculate_net_salary(
+            employee_data['salary'],
+            employee_data['deductions'],
+            employee_data['taxes'],
+            employee_data['benefits']
+        )
+        record = {
+            'name': employee_data['name'],
+            'salary': employee_data['salary'],
+            'deductions': employee_data['deductions'],
+            'taxes': employee_data['taxes'],
+            'benefits': employee_data['benefits'],
+            'net_salary': net_salary,
+            'date_processed': datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
+        }
+        st.session_state.payroll_records.append(record)
+        return record
+
+    def get_all_records(self):
+        return st.session_state.payroll_records
 
 # [Keep your existing InterviewScheduler class here]
 
@@ -115,6 +144,55 @@ def main():
                 st.write(f"Match Percentage: {match_percentage:.1f}%")
             else:
                 st.error("Please ensure spaCy model is properly installed")
+           
+            elif page == "Payroll Processing":
+            st.header("Payroll Processing")
+        
+        # Initialize PayrollProcessor
+        processor = PayrollProcessor()
+        
+        # Create two columns
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Enter Employee Details")
+            with st.form("payroll_form"):
+                employee_name = st.text_input("Employee Name")
+                salary = st.number_input("Base Salary", min_value=0.0, step=100.0)
+                deductions = st.number_input("Deductions", min_value=0.0, step=10.0)
+                taxes = st.number_input("Taxes", min_value=0.0, step=10.0)
+                benefits = st.number_input("Benefits", min_value=0.0, step=10.0)
+                
+                submitted = st.form_submit_button("Process Payroll")
+                if submitted and employee_name:
+                    employee_data = {
+                        'name': employee_name,
+                        'salary': salary,
+                        'deductions': deductions,
+                        'taxes': taxes,
+                        'benefits': benefits
+                    }
+                    record = processor.add_employee_record(employee_data)
+                    st.success(f"Processed payroll for {employee_name}")
+                    st.json(record)
+        
+        with col2:
+            st.subheader("Payroll Records")
+            records = processor.get_all_records()
+            if records:
+                for record in records:
+                    with st.expander(f"💰 {record['name']} - {record['date_processed']}"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.write("Base Salary:", f"${record['salary']:,.2f}")
+                            st.write("Deductions:", f"${record['deductions']:,.2f}")
+                            st.write("Taxes:", f"${record['taxes']:,.2f}")
+                        with col2:
+                            st.write("Benefits:", f"${record['benefits']:,.2f}")
+                            st.write("Net Salary:", f"${record['net_salary']:,.2f}")
+                            st.write("Date Processed:", record['date_processed'])
+            else:
+                st.info("No payroll records found")
 
     # [Keep your existing elif blocks for other pages]
 
