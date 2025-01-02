@@ -145,7 +145,7 @@ def main():
             else:
                 st.error("Please ensure spaCy model is properly installed")
            
-            elif page == "Payroll Processing":
+        elif page == "Payroll Processing":
             st.header("Payroll Processing")
         
         # Initialize PayrollProcessor
