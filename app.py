@@ -144,9 +144,9 @@ def main():
                 st.write(f"Match Percentage: {match_percentage:.1f}%")
             else:
                 st.error("Please ensure spaCy model is properly installed")
-           
-        elif page == "Payroll Processing":
-            st.header("Payroll Processing")
+
+    elif page == "Payroll Processing":  # Note: This is now at the same level as the first if statement
+        st.header("Payroll Processing")
         
         # Initialize PayrollProcessor
         processor = PayrollProcessor()
@@ -194,7 +194,13 @@ def main():
             else:
                 st.info("No payroll records found")
 
-    # [Keep your existing elif blocks for other pages]
+    elif page == "Interview Scheduling":
+        st.header("Interview Scheduling")
+        st.info("Interview Scheduling feature coming soon!")
+
+    elif page == "Performance Tracking":
+        st.header("Performance Tracking")
+        st.info("Performance Tracking feature coming soon!")
 
 if __name__ == "__main__":
     main()
